@@ -17,5 +17,8 @@ To install the required dependencies and set up the project, run the following c
 
 ```bash
   source setup.sh
+```
+> Note: This command assumes you're using a bash shell. If you’re using a different shell, adjust the command accordingly
 
-Note: This command assumes you're using a bash shell. If you’re using a different shell, adjust the command accordingly
+For PowerShell/CMD Terminal
+```setup.sh```
