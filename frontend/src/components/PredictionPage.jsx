@@ -11,7 +11,9 @@ const PredictPage = () => {
   const [uploadedImage, setUploadedImage] = useState(
     location.state?.uploadedImage || null
   );
-  const [predictionResult, setPredictionResult] = useState(null); // Store prediction result (processed image or result)
+  const [predictionResult, setPredictionResult] = useState([
+    "LLM Services are down.",
+  ]); // Store prediction result (processed image or result)
   const [loading, setLoading] = useState(false); // State for loading indicator
   const [errorMessage, setErrorMessage] = useState(null); // State for handling errors
 
