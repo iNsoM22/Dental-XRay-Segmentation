@@ -1,3 +1,4 @@
+## Deprecated: Will be removed later.
 #!/bin/bash
 
 if [ ! -d "model" ]; then
