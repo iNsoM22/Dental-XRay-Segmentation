@@ -1,4 +1,5 @@
 .venv
 yolov5
 .env
-frontend/nodemodules
+__pycache__
+/*/__pycache__
