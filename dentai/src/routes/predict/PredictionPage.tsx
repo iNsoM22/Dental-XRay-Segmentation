@@ -5,7 +5,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { icons } from "@/assets/assets";
 import ImageContainer from "@/components/ImageContainer";
 import "./PredictionPage.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getPrediction, uploadImage } from "@/services/DBService";
+import { useNavigate } from "react-router-dom";
 
 const PredictionPage = () => {
   const [showPredictImage, setShowPredictImage] = useState(false);
@@ -14,10 +16,19 @@ const PredictionPage = () => {
     predictedImageFile,
     imageForPredictionURL,
     predictedImageURL,
+    setPredictedImageFile,
+    setPredictedImageURL,
+    fid,
+    setFid,
+    resetImages,
   } = useImagePrediction();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+
+  const navigate = useNavigate();
 
   // Image Download Handler
-  const handleDownload = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDownload = (event: any) => {
     event.preventDefault();
 
     let fileToDownload = showPredictImage
@@ -36,60 +47,114 @@ const PredictionPage = () => {
     }
   };
 
+  const handleBackNavigation = (event: any) => {
+    event.preventDefault();
+    resetImages();
+    intervalId && clearInterval(intervalId);
+    navigate("/");
+  };
+
+  const getPredictionsFromServer = async () => {
+    if (fid) {
+      const response = await getPrediction(fid);
+      response && setPredictedImageFile(response);
+      if (predictedImageFile) {
+        const predictionURL = URL.createObjectURL(predictedImageFile);
+        setPredictedImageURL(predictionURL);
+        // Stop Polling
+        setIsProcessing(false);
+        setIntervalId(null);
+      }
+    }
+  };
+  const handlePrediction = async (event: any) => {
+    event.preventDefault();
+    // Reset Previous Fid if Available
+    setFid(null);
+
+    if (imageForPredictionFile) {
+      const response = await uploadImage(imageForPredictionFile);
+      if (response) {
+        setFid(response);
+        setIsProcessing(true);
+      }
+    }
+  };
+
+  // Polling for Prediction Results
+  useEffect(() => {
+    if (isProcessing && !predictedImageFile && !predictedImageURL) {
+      const id = setInterval(getPredictionsFromServer, 5000);
+      setIntervalId(id);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isProcessing, fid]);
+
   return (
-    <main className="h-screen w-screen flex flex-col pb-10">
-      <div className="flex size-full flex-grow p-6 mt-16 gap-6 max-w-10/12 mx-auto relative z-10">
-        {/* Left Section - Image Preview */}
-        <Card className="flex flex-col h-full w-5/6 p-4 shadow-2xl bg-white/90 backdrop-blur-lg">
-          <CardContent className="flex flex-col">
-            {/* Image Buttons to Change Between Original and Predicted Image*/}
-            <div className="flex space-x-4 mb-4">
-              <Button
-                variant="outline"
-                className={`w-24 border-gray-400 ${
-                  showPredictImage ? "bg-blue-300 hover:bg-blue-300" : ""
-                }`}
-                onClick={() => {
-                  setShowPredictImage(true);
-                }}
-              >
-                Prediction
-              </Button>
-              <Button
-                variant="outline"
-                className={`w-24 border-gray-400 ${
-                  showPredictImage ? "" : "bg-blue-300 hover:bg-blue-300"
-                }`}
-                onClick={() => {
-                  setShowPredictImage(false);
-                }}
-              >
-                Original
-              </Button>
-            </div>
+    <main className="h-screen w-screen overflow-hidden py-10">
+      {/* Left Section - Image Preview */}
+      <div className="flex flex-grow max-h-screen h-[85%] mt-16 max-w-9/12 mx-auto relative">
+        {/* Right Side Tool Box */}
+        <span className="right-tool-box">
+          {/* Image Buttons to Change Between Original and Predicted Image*/}
+          <Button
+            variant="outline"
+            className={`w-20  max-w-26 border-gray-400 ${
+              showPredictImage ? "bg-blue-300 hover:bg-blue-300" : ""
+            }`}
+            onClick={() => {
+              setShowPredictImage(true);
+            }}
+          >
+            Prediction
+          </Button>
+          <Button
+            variant="outline"
+            className={`w-20 max-w-26 border-gray-400 ${
+              showPredictImage ? "" : "bg-blue-300 hover:bg-blue-300"
+            }`}
+            onClick={() => {
+              setShowPredictImage(false);
+            }}
+          >
+            Original
+          </Button>
+          {/* Back Button */}
+          <img
+            src={icons.BackArrow}
+            height={27}
+            width={27}
+            alt="Back Arrow"
+            className="cursor-pointer rounded-2xl"
+            onClick={handleBackNavigation}
+          />
+          {/* Download Button */}
+          <img
+            src={icons.FileDownload}
+            height={27}
+            width={27}
+            alt="Download Predictions"
+            className="cursor-pointer rounded-2xl"
+            onClick={handleDownload}
+          />
+        </span>
 
-            {/* Image Preview */}
-            {!showPredictImage ? (
-              <ImageContainer imageURL={imageForPredictionURL || ""} />
-            ) : (
-              <ImageContainer imageURL={predictedImageURL || ""} />
-            )}
+        {/* Image Preview */}
+        {!showPredictImage ? (
+          <ImageContainer
+            imageURL={imageForPredictionURL || ""}
+            unavailableMsg="Image Unavailable"
+          />
+        ) : (
+          <ImageContainer
+            imageURL={predictedImageURL || ""}
+            unavailableMsg="No Prediction Performed"
+          />
+        )}
 
-            {/* Download Button */}
-            <Button
-              variant="outline"
-              className="absolute top-4 right-4 box-content cursor-pointer rounded-2xl"
-              onClick={handleDownload}
-            >
-              <img
-                src={icons.FileDownload}
-                height={40}
-                width={40}
-                alt="Download Predictions"
-              />
-            </Button>
-          </CardContent>
-        </Card>
         {/* Right Section - Text Analysis & Predict Again */}
         <div className="flex flex-col w-1/4 gap-4">
           <AnalysisContainer />
@@ -97,6 +162,7 @@ const PredictionPage = () => {
           <Button
             variant={"outline"}
             className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 hover:text-white text-white text-lg py-8 rounded-4xl shadow-md"
+            onClick={handlePrediction}
           >
             {predictedImageURL ? "Predict Again" : "Predict"}
           </Button>
@@ -105,5 +171,4 @@ const PredictionPage = () => {
     </main>
   );
 };
-
 export default PredictionPage;

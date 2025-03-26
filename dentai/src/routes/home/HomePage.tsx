@@ -100,11 +100,11 @@ export default function Home() {
           </motion.div>
 
           {imageForPredictionURL && (
-            <div className="flex-col size-[520px] mr-44">
+            <div className="flex-col size-[520px] py-10 mr-44">
               <motion.div
                 className="flex"
                 initial={{ opacity: 0, width: 0, height: 0 }}
-                animate={{ opacity: 1, width: "520px", height: "520px" }}
+                animate={{ opacity: 1, width: "25rem", height: "25rem" }}
                 transition={{ duration: 0.7, ease: "easeOut" }}
               >
                 <div className="relative flex justify-end">
@@ -124,7 +124,7 @@ export default function Home() {
 
               <Button
                 variant="outline"
-                className="m-5 self-center bg-black w-50 h-24 rounded-4xl text-xl font-bold "
+                className="m-5 self-center bg-black w-50 max-w-50 h-24 rounded-4xl text-xl font-bold "
                 onClick={handleSubmit}
               >
                 Predict

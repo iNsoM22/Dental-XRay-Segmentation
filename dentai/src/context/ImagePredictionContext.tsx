@@ -5,11 +5,13 @@ interface ImagePredictionContextType {
   predictedImageFile: File | null;
   imageForPredictionURL: string | null;
   predictedImageURL: string | null;
+  fid: string | null;
 
   setImageForPredictionFile: (file: File | null) => void;
   setPredictedImageFile: (file: File | null) => void;
   setImageForPredictionURL: (url: string | null) => void;
   setPredictedImageURL: (url: string | null) => void;
+  setFid: (id: string | null) => void;
   resetImages: () => void;
 }
 
@@ -33,12 +35,14 @@ export const ImagePredictionProvider = ({
   const [predictedImageURL, setPredictedImageURL] = useState<string | null>(
     null
   );
+  const [fid, setFid] = useState<string | null>(null);
 
   const resetImages = () => {
     setImageForPredictionFile(null);
     setPredictedImageFile(null);
     setImageForPredictionURL(null);
     setPredictedImageURL(null);
+    setFid(null);
   };
 
   return (
@@ -48,11 +52,13 @@ export const ImagePredictionProvider = ({
         predictedImageFile,
         imageForPredictionURL,
         predictedImageURL,
+        fid,
         setImageForPredictionFile,
         setPredictedImageFile,
         setImageForPredictionURL,
         setPredictedImageURL,
         resetImages,
+        setFid,
       }}
     >
       {children}
