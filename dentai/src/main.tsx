@@ -1,12 +1,32 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
 import App from "./App.tsx";
-import { Toaster } from "sonner";
+import { HomePage, PredictionsPage } from "./routes/pages.tsx";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import "./index.css";
+import { ImagePredictionProvider } from "./context/ImagePredictionContext.tsx";
+
+const router = createBrowserRouter([
+  {
+    element: <App />,
+    children: [
+      {
+        path: "/",
+        element: HomePage,
+      },
+
+      {
+        path: "/predict",
+        element: PredictionsPage,
+      },
+    ],
+  },
+]);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
-    <Toaster richColors />
+    <ImagePredictionProvider>
+      <RouterProvider router={router} />
+    </ImagePredictionProvider>
   </StrictMode>
 );

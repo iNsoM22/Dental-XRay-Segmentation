@@ -118,3 +118,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Application Background Interface */
+.app-background {
+  @apply fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat;
+  background-image: url("./assets/images/bg.png");
+}
+
+.app-overlay {
+  @apply absolute inset-0 bg-black/50 backdrop-blur-md;
+}
+
+/* Global Components Styles */
+.nav-link {
+  @apply text-white text-lg font-semibold hover:text-blue-400 transition-all duration-200;
+}
