@@ -1,5 +1,5 @@
 .parallax {
-  background-image: url("https://www.transparenttextures.com/patterns/wood-pattern.png");
+  background-image: url("./../../assets/images/wood-pattern.png");
   height: 100%;
   width: 100%;
   animation: parallaxEffect 40s infinite linear;

@@ -2,38 +2,51 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useRef, useState } from "react";
-import { toastError } from "@/lib/Toaster";
+import { toastError } from "@/lib/toaster";
 import "./HomePage.css";
 import { useNavigate } from "react-router-dom";
+import { useImagePrediction } from "@/context/ImagePredictionContext";
 
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [file, setFile] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleFileChange = (event: any) => {
-    const selectedFile = event.target.files[0];
+  const {
+    imageForPredictionURL,
+    setImageForPredictionURL,
+    setImageForPredictionFile,
+    resetImages,
+  } = useImagePrediction();
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile: File | undefined = event.target.files?.[0];
 
     if (selectedFile) {
-      const validImageTypes = [
+      const validImageTypes: string[] = [
         "image/jpeg",
         "image/png",
         "image/gif",
         "image/bmp",
         "image/webp",
       ];
+
       if (validImageTypes.includes(selectedFile.type)) {
-        const imageURL = URL.createObjectURL(selectedFile);
-        setPreviewImage(imageURL);
-        setFile(selectedFile);
+        const imageURL: string = URL.createObjectURL(selectedFile);
+        setImageForPredictionURL(imageURL);
+        setImageForPredictionFile(selectedFile);
       } else {
-        // Some Error Has Occured.
         // Show SnackBar and Clear Values
         toastError(
-          "Invalid File Type: Image Should be of these types: jpeg, png, gif, bmp, or webp."
+          "Invalid File Type: Image should be of these types: jpeg, png, gif, bmp, or webp."
         );
       }
+    }
+  };
+
+  const handleSubmit = (event: any) => {
+    event.preventDefault();
+    if (imageForPredictionURL) {
+      navigate("/predict");
     }
   };
 
@@ -73,7 +86,9 @@ export default function Home() {
                 onClick={() => fileInputRef.current?.click()}
               >
                 {/* Make this Input Button to Choose File From the Local and then Load that file */}
-                {!previewImage ? "Upload X-Ray" : "Select Another X-Ray"}
+                {!imageForPredictionURL
+                  ? "Upload X-Ray"
+                  : "Select Another X-Ray"}
               </Button>
               <input
                 type="file"
@@ -84,7 +99,7 @@ export default function Home() {
             </motion.div>
           </motion.div>
 
-          {previewImage && (
+          {imageForPredictionURL && (
             <div className="flex-col size-[520px] mr-44">
               <motion.div
                 className="flex"
@@ -95,15 +110,12 @@ export default function Home() {
                 <div className="relative flex justify-end">
                   <img
                     className="rounded-2xl shadow-lg"
-                    src={previewImage}
+                    src={imageForPredictionURL}
                     alt="Uploaded Preview"
                   />
                   <Button
                     className="flex absolute justify-center items-center p-4 m-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 shadow-md z-10"
-                    onClick={() => {
-                      setFile(null);
-                      setPreviewImage(null);
-                    }}
+                    onClick={() => resetImages()}
                   >
                     ✕
                   </Button>
@@ -113,10 +125,7 @@ export default function Home() {
               <Button
                 variant="outline"
                 className="m-5 self-center bg-black w-50 h-24 rounded-4xl text-xl font-bold "
-                onClick={(event) => {
-                  event.preventDefault();
-                  navigate("/predict");
-                }}
+                onClick={handleSubmit}
               >
                 Predict
               </Button>
@@ -149,11 +158,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="w-full text-center absolute bottom-0 bg-gray-800 text-white">
-        <p>&copy; 2025 DentAi. All rights reserved.</p>
-      </footer>
     </div>
   );
 }
