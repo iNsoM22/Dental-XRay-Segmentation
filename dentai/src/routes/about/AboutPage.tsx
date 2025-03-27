@@ -9,7 +9,9 @@ const About = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
       >
-        <h1 className="text-6xl font-bold text-blue-400 mb-4">About Dent AI</h1>
+        <h1 className="text-6xl font-bold text-green-400 mb-4">
+          About Dent AI
+        </h1>
         <p className="text-xl text-gray-300 leading-relaxed">
           <span className="font-semibold text-white">Dent AI</span> is an
           AI-powered segmentation model designed to precisely analyze X-ray

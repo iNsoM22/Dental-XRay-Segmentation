@@ -16,7 +16,7 @@ const Contact = () => {
         </p>
 
         {/* Email */}
-        <div className="flex ml-26 justify-self-start items-center justify-center space-x-4">
+        <div className="flex md:ml-26 justify-center md:justify-self-start items-center space-x-4">
           <img src={icons.Envelope} width={60} />
           <a
             href="mailto:s.a.moizKhan988@gmail.com"
@@ -27,7 +27,7 @@ const Contact = () => {
         </div>
 
         {/* GitHub */}
-        <div className="flex ml-26 justify-self-start items-center justify-center mt-4 space-x-4">
+        <div className="flex md:ml-26 justify-center md:justify-self-start items-center mt-4 space-x-4">
           <img src={icons.GitHub} width={60} />
           <a
             href="https://github.com/iNsoM22/Dental-XRay-Segmentation"

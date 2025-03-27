@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { toastError } from "@/lib/toaster";
-import "./HomePage.css";
 import { useNavigate } from "react-router-dom";
 import { useImagePrediction } from "@/context/ImagePredictionContext";
 
@@ -51,93 +50,95 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen w-screen relative bg-gray-50 text-gray-900 flex flex-col">
+    <main className="relative md:h-screen flex flex-col bg-gradient-to-r from-blue-600 to-blue-400 bg-gray-50 text-gray-900">
       {/* Hero Section */}
-      <section className="flex-grow flex justify-center items-center text-center max-h-[80%] bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-        <div className="parallax">
-          <motion.div
-            className="w-full transition-all duration-1000 flex flex-col items-center"
-            initial={{ x: 0 }}
+      <section className="parallax flex flex-col min-h-[60%] md:flex-row grow justify-center items-center text-center text-white p-4 pb-3 md:pt-10">
+        <motion.div
+          className={`w-full ${
+            imageForPredictionURL && "md:w-[80%]"
+          } transition-all duration-1000 ease-in flex flex-col items-center`}
+          initial={{ x: 0 }}
+        >
+          <motion.h1
+            className="text-5xl sm:text-6xl md:text-7xl mt-20 font-extrabold md:px-20 lg:px-40"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
           >
-            <motion.h1
-              className="text-7xl mt-20 font-extrabold"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
+            Revolutionizing Dental Care with AI
+          </motion.h1>
+
+          <motion.p
+            className="text-lg sm:text-xl md:text-2xl mt-6 max-w-xl mx-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            AI-powered dental X-ray analysis for early detection and better
+            diagnosis.
+          </motion.p>
+
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            <Button
+              className="primary-btn"
+              variant={"secondary"}
+              onClick={() => fileInputRef.current?.click()}
             >
-              Revolutionizing Dental Care with AI
-            </motion.h1>
-            <motion.p
-              className="text-2xl mt-8 max-w-xl mx-auto"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              AI-powered dental X-ray analysis for early detection and better
-              diagnosis.
-            </motion.p>
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.6 }}
-            >
-              <Button
-                className="mt-20 px-15 py-9 bg-white text-blue-600 text-xl font-semibold rounded-4xl shadow-lg"
-                variant={"secondary"}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {/* Make this Input Button to Choose File From the Local and then Load that file */}
-                {!imageForPredictionURL
-                  ? "Upload X-Ray"
-                  : "Select Another X-Ray"}
-              </Button>
-              <input
-                type="file"
-                hidden={true}
-                ref={fileInputRef}
-                onChange={handleFileChange}
-              />
-            </motion.div>
+              {!imageForPredictionURL ? "Upload X-Ray" : "Select Another X-Ray"}
+            </Button>
+            <input
+              type="file"
+              hidden
+              ref={fileInputRef}
+              onChange={handleFileChange}
+            />
           </motion.div>
+        </motion.div>
 
-          {imageForPredictionURL && (
-            <div className="flex-col size-[520px] py-10 mr-44">
-              <motion.div
-                className="flex"
-                initial={{ opacity: 0, width: 0, height: 0 }}
-                animate={{ opacity: 1, width: "25rem", height: "25rem" }}
+        {imageForPredictionURL && (
+          <div className="flex flex-col justify-between items-center xl:mr-44 py-6 sm:py-10 max-sm:w-[80%]">
+            <div className="relative flex justify-center w-full">
+              <motion.img
+                className="rounded-2xl shadow-lg sm:max-w-[400px] md:max-w-[500px]"
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  maxHeight: 320,
+                  maxWidth: 500,
+                }}
                 transition={{ duration: 0.7, ease: "easeOut" }}
-              >
-                <div className="relative flex justify-end">
-                  <img
-                    className="rounded-2xl shadow-lg"
-                    src={imageForPredictionURL}
-                    alt="Uploaded Preview"
-                  />
-                  <Button
-                    className="flex absolute justify-center items-center p-4 m-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 shadow-md z-10"
-                    onClick={() => resetImages()}
-                  >
-                    ✕
-                  </Button>
-                </div>
-              </motion.div>
-
+                src={imageForPredictionURL}
+                alt="Uploaded Preview"
+              />
               <Button
-                variant="outline"
-                className="m-5 self-center bg-black w-50 max-w-50 h-24 rounded-4xl text-xl font-bold "
-                onClick={handleSubmit}
+                className="absolute top-3 right-10 md:right-4 p-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm"
+                onClick={() => resetImages()}
               >
-                Predict
+                ✕
               </Button>
             </div>
-          )}
-        </div>
+
+            <Button
+              variant="outline"
+              className="mt-5 bg-black w-40 h-12 rounded-4xl text-lg font-bold"
+              onClick={handleSubmit}
+            >
+              Predict
+            </Button>
+          </div>
+        )}
       </section>
 
       {/* Features Section */}
-      <section className="flex flex-col max-h-[31%] h-full justify-center bg-gray-200 text-center">
-        <h2 className="text-4xl font-semibold">Why Choose DentAi?</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-8 mt-6">
+      <section className="flex flex-col p-6 pb-16 bg-gray-200 text-center">
+        <h2 className="text-2xl md:text-4xl font-semibold">
+          Why Choose DentAI?
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
           {[
             "AI-Powered Diagnosis",
             "Faster & More Accurate",
@@ -150,7 +151,7 @@ export default function Home() {
               transition={{ delay: 0.2 * index }}
             >
               <Card className="shadow-lg hover:shadow-xl transition-all">
-                <CardContent className="text-lg font-medium">
+                <CardContent className="text-lg font-medium py-4">
                   {feature}
                 </CardContent>
               </Card>
@@ -158,6 +159,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-    </div>
+    </main>
   );
 }

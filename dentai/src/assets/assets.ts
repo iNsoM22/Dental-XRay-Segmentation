@@ -1,4 +1,4 @@
-import BackArrow from "./icons/back.png";
+import BackArrow from "./icons/arrow-left.png";
 import Download from "./icons/download.png";
 import FileDownload from "./icons/file.png";
 import Envelope from "./icons/envelope-regular.svg";

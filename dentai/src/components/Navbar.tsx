@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <nav className="fixed w-full bg-white/10 backdrop-blur-lg shadow-md z-50 border-b border-white/20">
       <div className="container mx-auto flex justify-between items-center py-4 px-6">
@@ -13,7 +15,7 @@ const Navbar = () => {
           DENT <span className="text-blue-700">AI</span>
         </Link>
 
-        {/* Navigation Links */}
+        {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-10">
           <Link to="/" className="nav-link">
             Home
@@ -28,11 +30,41 @@ const Navbar = () => {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">
-          <button className="text-white text-2xl hover:text-blue-400 transition-all">
-            ☰
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="text-white text-2xl hover:text-blue-400 transition-all"
+          >
+            {menuOpen ? "✕" : "☰"}
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div className="md:hidden text-center text-white flex flex-col items-center py-4 space-y-4">
+          <Link
+            to="/"
+            className="nav-link border-b w-full"
+            onClick={() => setMenuOpen(false)}
+          >
+            Home
+          </Link>
+          <Link
+            to="/about"
+            className="nav-link border-b w-full"
+            onClick={() => setMenuOpen(false)}
+          >
+            About
+          </Link>
+          <Link
+            to="/contact"
+            className="nav-link border-b w-full"
+            onClick={() => setMenuOpen(false)}
+          >
+            Contact
+          </Link>
+        </div>
+      )}
     </nav>
   );
 };
