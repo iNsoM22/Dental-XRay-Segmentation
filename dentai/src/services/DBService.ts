@@ -15,7 +15,6 @@ export const uploadImage = async (file: File): Promise<string | null> => {
     });
     return response.data?.data?.fid || null;
   } catch (error) {
-    console.error("Error Uploading Image:", error);
     return null;
   }
 };
@@ -39,7 +38,6 @@ export const getPrediction = async (
     );
     return { imageFile };
   } catch (error) {
-    console.error("Error Fetching Prediction:", error);
     return null;
   }
 };
@@ -55,7 +53,6 @@ export const getAnalysis = async (fileId: string): Promise<any> => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error Fetching Analysis:", error);
     return null;
   }
 };

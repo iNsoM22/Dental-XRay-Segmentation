@@ -121,12 +121,11 @@
 
 /* Application Background Interface */
 .app-background {
-  @apply absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat;
-  background-image: url("./assets/images/bg.png");
+  @apply absolute inset-0 w-full min-h-screen bg-cover bg-center;
 }
 
 .app-overlay {
-  @apply absolute inset-0 bg-black/45 backdrop-blur-md;
+  @apply absolute inset-0 bg-black/70 backdrop-blur-md;
 }
 
 /* Global Components Styles */
@@ -157,21 +156,28 @@
 }
 
 /* Prediction Page Css */
-.tool-box {
-  @apply absolute left-1/2 transform -translate-x-1/2 w-[80%] flex bg-gradient-to-tr from-green-300 to-blue-500 rounded-b-xl justify-between px-10;
-}
-
-.left-tool-box {
-  @apply flex justify-center px-2 py-5 space-x-3;
-}
-
-.right-tool-box {
-  @apply py-6 flex space-x-10;
-}
-.image-wrapper {
-  @apply flex items-center justify-center w-full min-h-[75vh] bg-gray-400 border border-gray-300 rounded-xl shadow-md p-4;
-}
-
 .section-background {
   @apply shadow-lg border bg-gradient-to-br from-[#181C22] via-[#222831] to-[#10151F] shadow-blue-500/10;
+}
+
+.og-pred-option-btn {
+  @apply w-20 border-gray-400 text-sm text-white hover:bg-blue-600;
+}
+
+.custom-button {
+  @apply w-32 py-6 max-w-80 flex place-self-center 
+  bg-gradient-to-r from-green-500 to-blue-500 
+  hover:from-green-600 hover:to-blue-600 hover:text-white 
+  text-white text-lg rounded-4xl shadow-md 
+  transition-all duration-150 ease-in-out 
+  active:scale-95 active:shadow-none lg:hidden;
+}
+
+.custom-button-lg {
+  @apply w-60 max-w-80 hidden lg:flex self-center 
+  bg-gradient-to-r from-green-500 to-blue-500 
+  hover:from-green-600 hover:to-blue-600 hover:text-white 
+  text-white text-lg py-8 rounded-4xl shadow-md 
+  transition-all duration-150 ease-in-out 
+  active:scale-95 active:shadow-none;
 }

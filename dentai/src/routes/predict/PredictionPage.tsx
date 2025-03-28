@@ -3,8 +3,9 @@ import AnalysisContainer from "@/components/AnalysisContainer";
 import { useImagePrediction } from "@/context/ImagePredictionContext";
 import { useEffect, useRef, useState } from "react";
 import { getPrediction, uploadImage } from "@/services/DBService";
-import { Card, CardContent } from "@/components/ui/card";
 import Container from "@/components/Container";
+import { toastError } from "@/lib/toaster";
+import Loader from "@/components/loader";
 
 const PredictionPage = () => {
   const {
@@ -16,9 +17,10 @@ const PredictionPage = () => {
     fid,
     setFid,
   } = useImagePrediction();
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [showAnalysis, setShowAnalysis] = useState<boolean>(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
 
   const toggleAnalysis = () => {
     setShowAnalysis((prev) => !prev);
@@ -44,17 +46,23 @@ const PredictionPage = () => {
 
   const handlePrediction = async (event: any) => {
     event.preventDefault();
+
     // Reset Previous Fid if Available
     setFid(null);
     setPredictedImageFile(null);
     setPredictedImageURL(null);
     setShowAnalysis(false);
 
+    setIsButtonDisabled(true);
+    setTimeout(() => setIsButtonDisabled(false), 5000);
+
     if (imageForPredictionFile) {
       const response = await uploadImage(imageForPredictionFile);
       if (response) {
         setFid(response);
         setIsProcessing(true);
+      } else {
+        toastError("Server Not Responding");
       }
     }
   };
@@ -74,52 +82,57 @@ const PredictionPage = () => {
   }, [fid, isProcessing]);
 
   return (
-    <main className="h-screen w-screen overflow-scroll md:overflow-hidden">
-      <Card className="h-full w-full">
-        <CardContent className="flex flex-col space-x-8 mt-[15%] md:mt-8 lg:m-0 lg:flex-row justify-center items-center">
-          <section className="relative w-full max-w-full lg:w-[60%] lg:max-w-[75%] h-[90%] my-auto">
-            {/* Main Images Container */}
-            <Container intervalId={intervalRef.current} />
-            <div className="flex gap-4 mt-2 justify-center">
-              <Button
-                variant={"outline"}
-                className="w-32 py-6 max-w-80 flex place-self-center visible lg:invisible bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 hover:text-white text-white text-lg rounded-4xl shadow-md"
-                onClick={handlePrediction}
-              >
-                {predictedImageURL ? "Predict Again" : "Predict"}
-              </Button>
-              <Button
-                variant={"outline"}
-                className="w-32 py-6 max-w-80 flex place-self-center visible lg:invisible bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 hover:text-white text-white text-lg rounded-4xl shadow-md"
-                onClick={toggleAnalysis}
-                disabled={!predictedImageFile}
-              >
-                {predictedImageURL ? "Show Analysis" : "Close Analysis"}
-              </Button>
-            </div>
-          </section>
-
-          {/* Right Section - Text Analysis & Predict Again */}
-          <section
-            className={`relative flex flex-col w-full min-h-60 max-h-full lg:max-w-[30%] lg:w-[20%] lg:h-[90%] gap-4 justify-center lg:justify-start
-              transition-all duration-300 ${
-                showAnalysis ? "visible" : "invisible lg:visible"
-              }`}
-          >
-            <AnalysisContainer />
-            {/* Predict Again Button (Large Screens) */}
+    <main className="relative flex flex-col min-h-screen">
+      <div className="flex flex-col pt-20 pb-8 px-2 lg:flex-row lg:w-full lg:justify-center lg:gap-5">
+        <section className="flex flex-col max-sm:px-1 max-md:px-4  lg:px-2 lg:max-w-7xl lg:w-[70%] lg:justify-center">
+          {/* Main Images Container */}
+          <Container intervalId={intervalRef.current} loading={isProcessing} />
+          <div className="flex w-full gap-4 mt-8 justify-center">
             <Button
-              variant="outline"
-              className="w-60 max-w-80 hidden lg:flex self-center bg-gradient-to-r from-green-500 to-blue-500 
-               hover:from-green-600 hover:to-blue-600 hover:text-white text-white text-lg 
-               py-8 rounded-4xl shadow-md"
+              variant={"outline"}
+              className="custom-button"
               onClick={handlePrediction}
+              disabled={isButtonDisabled}
             >
               {predictedImageURL ? "Predict Again" : "Predict"}
             </Button>
-          </section>
-        </CardContent>
-      </Card>
+            <Button
+              variant={"outline"}
+              className="custom-button px-16"
+              onClick={toggleAnalysis}
+              disabled={!predictedImageFile}
+            >
+              {!showAnalysis ? "Show Analysis" : "Close Analysis"}
+            </Button>
+          </div>
+        </section>
+
+        {/* Right Section - Text Analysis & Predict Again */}
+        <section
+          className={`lg:flex lg:flex-col lg:gap-4 lg:w-[25%] lg:max-w-xl transition-all duration-300 ${
+            showAnalysis ? "block" : "hidden lg:block"
+          }`}
+        >
+          <AnalysisContainer />
+          {/* Predict Again Button (Large Screens) */}
+          <Button
+            variant="outline"
+            className="custom-button-lg"
+            onClick={handlePrediction}
+            disabled={isButtonDisabled}
+          >
+            {isButtonDisabled ? (
+              <div className=" p-4">
+                <Loader />
+              </div>
+            ) : predictedImageURL ? (
+              "Predict Again"
+            ) : (
+              "Predict"
+            )}
+          </Button>
+        </section>
+      </div>
     </main>
   );
 };

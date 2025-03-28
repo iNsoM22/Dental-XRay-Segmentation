@@ -5,9 +5,11 @@ import Footer from "./components/Footer";
 
 const App = () => {
   return (
-    <div className=" min-h-screen w-screen flex flex-col">
+    <div className="relative h-screen w-screen overflow-x-hidden">
       {/* Background Image & Overlay */}
-      <div className="app-background">
+
+      <div className="fixed inset-0 bg-blue-400">
+        <div className="app-background parallax z-10" />
         <div className="app-overlay" />
       </div>
 

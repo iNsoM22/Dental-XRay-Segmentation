@@ -4,18 +4,21 @@ import { useImagePrediction } from "@/context/ImagePredictionContext";
 import { icons } from "@/assets/assets";
 import ImageContainer from "./ImageContainer";
 import { useNavigate } from "react-router-dom";
+import Loader from "./loader";
 
 interface ContainerProps {
   intervalId: NodeJS.Timeout | null;
+  loading: boolean;
 }
 
-const Container = ({ intervalId }: ContainerProps) => {
+const Container = ({ intervalId, loading }: ContainerProps) => {
   const [showPredictImage, setShowPredictImage] = useState(false);
   const {
     imageForPredictionFile,
     predictedImageFile,
     imageForPredictionURL,
     resetImages,
+    fid,
     predictedImageURL,
   } = useImagePrediction();
   const navigate = useNavigate();
@@ -30,7 +33,7 @@ const Container = ({ intervalId }: ContainerProps) => {
       const url = URL.createObjectURL(fileToDownload);
       const a = document.createElement("a");
       a.href = url;
-      a.download = fileToDownload.name || "downloaded_image.png";
+      a.download = fileToDownload.name || fid + "./jpg";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -54,52 +57,56 @@ const Container = ({ intervalId }: ContainerProps) => {
   };
 
   return (
-    <div className="lg:min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="w-full flex flex-col pt-8 gap-5 overflow-auto lg:overflow-hidden">
       {/* Tool Box */}
-      <div className="flex justify-between items-center w-full max-w-3xl p-3 rounded-lg shadow-md section-background">
-        <div className="flex space-x-4">
-          <Button
-            variant="outline"
-            className={`w-28 border-gray-400 text-[17px] text-white hover:bg-blue-600 ${
-              showPredictImage ? "bg-blue-600" : "bg-gray-600"
-            }`}
-            onClick={() => setShowPredictImage(true)}
-          >
-            Prediction
-          </Button>
-          <Button
-            variant="outline"
-            className={`w-28 border-gray-400 text-[17px] text-white hover:bg-blue-600 ${
-              showPredictImage ? "bg-gray-600" : "bg-blue-600"
-            }`}
-            onClick={() => setShowPredictImage(false)}
-          >
-            Original
-          </Button>
-        </div>
-        <div className="flex space-x-3">
-          <img
-            src={icons.BackArrow}
-            height={27}
-            width={27}
-            alt="Back Arrow"
-            className="cursor-pointer rounded-lg hover:opacity-80"
-            onClick={handleBackNavigation}
-          />
-          <img
-            src={icons.FileDownload}
-            height={27}
-            width={27}
-            alt="Download Predictions"
-            className="cursor-pointer rounded-lg hover:opacity-80"
-            onClick={handleDownload}
-          />
+      <div className="flex justify-center w-full min-w-72">
+        <div className="flex max-[400px]:justify-center max-[400px]:px-2 justify-between min-w-fit gap-4 items-center w-[90%] rounded-lg shadow px-8 py-2 section-background">
+          <div className="flex gap-3 min-w-fit">
+            <Button
+              variant="outline"
+              className={`og-pred-option-btn ${
+                showPredictImage ? "bg-blue-600" : "bg-gray-600"
+              }`}
+              onClick={() => setShowPredictImage(true)}
+            >
+              Prediction
+            </Button>
+            <Button
+              variant="outline"
+              className={`og-pred-option-btn ${
+                showPredictImage ? "bg-gray-600" : "bg-blue-600"
+              }`}
+              onClick={() => setShowPredictImage(false)}
+            >
+              Original
+            </Button>
+          </div>
+          <div className="flex gap-3 min-w-fit">
+            <img
+              src={icons.BackArrow}
+              height={27}
+              width={27}
+              alt="Back Arrow"
+              className="cursor-pointer rounded-lg hover:opacity-80"
+              onClick={handleBackNavigation}
+            />
+            <img
+              src={icons.FileDownload}
+              height={27}
+              width={27}
+              alt="Download Predictions"
+              className="cursor-pointer rounded-lg hover:opacity-80"
+              onClick={handleDownload}
+            />
+          </div>
         </div>
       </div>
 
       {/* Image Container */}
-      <div className="mt-8 grow w-full max-w-6xl h-[90%] flex justify-center">
-        <div className="max-w-screen w-full p-6 rounded-lg flex items-center justify-center min-h-[400px] md:max-h-[70vh] section-background">
+      <div className="flex items-center justify-center lg:max-h-[70vh]">
+        {loading ? (
+          <Loader />
+        ) : (
           <ImageContainer
             imageURL={
               (showPredictImage ? predictedImageURL : imageForPredictionURL) ||
@@ -109,7 +116,7 @@ const Container = ({ intervalId }: ContainerProps) => {
               showPredictImage ? "No Prediction Performed" : "Image Unavailable"
             }
           />
-        </div>
+        )}
       </div>
     </div>
   );
