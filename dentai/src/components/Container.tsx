@@ -1,17 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useImagePrediction } from "@/context/ImagePredictionContext";
 import { icons } from "@/assets/assets";
 import ImageContainer from "./ImageContainer";
+import { useNavigate } from "react-router-dom";
 
-const Container = () => {
+interface ContainerProps {
+  intervalId: NodeJS.Timeout | null;
+}
+
+const Container = ({ intervalId }: ContainerProps) => {
   const [showPredictImage, setShowPredictImage] = useState(false);
   const {
     imageForPredictionFile,
     predictedImageFile,
     imageForPredictionURL,
+    resetImages,
     predictedImageURL,
   } = useImagePrediction();
+  const navigate = useNavigate();
 
   const handleDownload = (event: any) => {
     event.preventDefault();
@@ -29,6 +36,21 @@ const Container = () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
+  };
+
+  useEffect(() => {
+    if (!predictedImageURL) return;
+
+    setShowPredictImage(true);
+  }, [predictedImageURL]);
+
+  // Re-Upload or HomePage Navigation Handler
+  const handleBackNavigation = (event: any) => {
+    event.preventDefault();
+    resetImages();
+    setShowPredictImage(false);
+    intervalId && clearInterval(intervalId);
+    navigate("/");
   };
 
   return (
@@ -62,6 +84,7 @@ const Container = () => {
             width={27}
             alt="Back Arrow"
             className="cursor-pointer rounded-lg hover:opacity-80"
+            onClick={handleBackNavigation}
           />
           <img
             src={icons.FileDownload}

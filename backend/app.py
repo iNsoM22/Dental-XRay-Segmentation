@@ -104,7 +104,6 @@ async def lifespan(app: FastAPI):
 
     processing_task.cancel()
     db_task.cancel()
-    del collection
 
     try:
         await processing_task

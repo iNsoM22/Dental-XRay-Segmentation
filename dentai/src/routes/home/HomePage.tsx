@@ -17,7 +17,8 @@ export default function Home() {
     resetImages,
   } = useImagePrediction();
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: any) => {
+    resetImages();
     const selectedFile: File | undefined = event.target.files?.[0];
 
     if (selectedFile) {
@@ -52,7 +53,7 @@ export default function Home() {
   return (
     <main className="relative lg:h-screen flex flex-col bg-gradient-to-r from-blue-600 to-blue-400 bg-gray-50 text-gray-900">
       {/* Hero Section */}
-      <section className="parallax flex flex-col min-h-[60%] lg:flex-row grow justify-center items-center text-center text-white p-4 pb-3 lg:pl-10 xl:pt-10">
+      <section className="parallax flex flex-col min-h-[70vh] lg:flex-row grow justify-center items-center text-center text-white p-4 pb-3 lg:pl-10 xl:pt-10">
         <motion.div
           className={`w-full ${
             imageForPredictionURL && "md:w-[80%]"
@@ -116,7 +117,12 @@ export default function Home() {
               />
               <Button
                 className="absolute top-3 right-5 lg:right-4 p-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm"
-                onClick={() => resetImages()}
+                onClick={() => {
+                  resetImages();
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                  }
+                }}
               >
                 ✕
               </Button>
