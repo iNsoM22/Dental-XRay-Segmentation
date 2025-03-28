@@ -23,10 +23,10 @@ export const uploadImage = async (file: File): Promise<string | null> => {
 // Fetches the prediction results for a given file ID
 export const getPrediction = async (
   fileId: string
-): Promise<{ imageFile: File | Blob } | null> => {
+): Promise<{ imageFile: File } | null> => {
   try {
     const imageResponse = await axios.get(
-      `${server}/api/prediction-image/${fileId}`,
+      `${server}/prediction-image/${fileId}`,
       {
         responseType: "blob",
       }
@@ -45,10 +45,10 @@ export const getPrediction = async (
 };
 
 // Fetches the Analysis for a given file ID
-export const getAnalysis = async (fileId: string): Promise<string | null> => {
+export const getAnalysis = async (fileId: string): Promise<any> => {
   try {
     const response = await axios.get(
-      `${server}/api/prediction-analysis/${fileId}`,
+      `${server}/prediction-analysis/${fileId}`,
       {
         headers: { "Content-Type": "application/json" },
       }
