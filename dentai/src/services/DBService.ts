@@ -13,8 +13,7 @@ export const uploadImage = async (file: File): Promise<string | null> => {
         "Content-Type": "multipart/form-data",
       },
     });
-
-    return response.data?.fileId || null;
+    return response.data?.data?.fid || null;
   } catch (error) {
     console.error("Error Uploading Image:", error);
     return null;
@@ -22,18 +21,41 @@ export const uploadImage = async (file: File): Promise<string | null> => {
 };
 
 // Fetches the prediction results for a given file ID
-export const getPrediction = async (fileId: string): Promise<File | null> => {
+export const getPrediction = async (
+  fileId: string
+): Promise<{ imageFile: File | Blob } | null> => {
   try {
-    const response = await axios.get(`${server}/predictions/${fileId}`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      withCredentials: true,
-    });
+    const imageResponse = await axios.get(
+      `${server}/api/prediction-image/${fileId}`,
+      {
+        responseType: "blob",
+      }
+    );
 
-    return response.data;
+    const imageFile = new File(
+      [imageResponse.data],
+      `prediction_${fileId}.jpg`,
+      { type: "image/jpeg" }
+    );
+    return { imageFile };
   } catch (error) {
     console.error("Error Fetching Prediction:", error);
+    return null;
+  }
+};
+
+// Fetches the Analysis for a given file ID
+export const getAnalysis = async (fileId: string): Promise<string | null> => {
+  try {
+    const response = await axios.get(
+      `${server}/api/prediction-analysis/${fileId}`,
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error Fetching Analysis:", error);
     return null;
   }
 };
