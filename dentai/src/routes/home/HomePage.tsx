@@ -50,9 +50,9 @@ export default function Home() {
   };
 
   return (
-    <main className="relative md:h-screen flex flex-col bg-gradient-to-r from-blue-600 to-blue-400 bg-gray-50 text-gray-900">
+    <main className="relative lg:h-screen flex flex-col bg-gradient-to-r from-blue-600 to-blue-400 bg-gray-50 text-gray-900">
       {/* Hero Section */}
-      <section className="parallax flex flex-col min-h-[60%] md:flex-row grow justify-center items-center text-center text-white p-4 pb-3 md:pt-10">
+      <section className="parallax flex flex-col min-h-[60%] lg:flex-row grow justify-center items-center text-center text-white p-4 pb-3 lg:pl-10 xl:pt-10">
         <motion.div
           className={`w-full ${
             imageForPredictionURL && "md:w-[80%]"
@@ -99,7 +99,7 @@ export default function Home() {
         </motion.div>
 
         {imageForPredictionURL && (
-          <div className="flex flex-col justify-between items-center xl:mr-44 py-6 sm:py-10 max-sm:w-[80%]">
+          <div className="flex flex-col justify-between items-center lg:mr-44 py-6 sm:py-10 max-sm:w-[80%]">
             <div className="relative flex justify-center w-full">
               <motion.img
                 className="rounded-2xl shadow-lg sm:max-w-[400px] md:max-w-[500px]"
@@ -115,7 +115,7 @@ export default function Home() {
                 alt="Uploaded Preview"
               />
               <Button
-                className="absolute top-3 right-10 md:right-4 p-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm"
+                className="absolute top-3 right-5 lg:right-4 p-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm"
                 onClick={() => resetImages()}
               >
                 ✕
@@ -138,7 +138,7 @@ export default function Home() {
         <h2 className="text-2xl md:text-4xl font-semibold">
           Why Choose DentAI?
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
           {[
             "AI-Powered Diagnosis",
             "Faster & More Accurate",
