@@ -21,8 +21,8 @@ def json_parser(predictions: List[Dict[str, float]]) -> List[dict]:
 
     Examples:
     - input: [{'class_name': 'dog', 'confidence': 0.95}, {'class_name': 'dog', 'confidence': 0.85}, {'class_name': 'cat', 'confidence': 0.98}]
-    - output: [{class_name: 'dog', count: 2, average_confidence: 0.90},
-               {class_name: 'cat', count: 1, average_confidence: 0.98}]
+    - output: [{className: 'dog', count: 2, averageConfidence: 0.90},
+               {className: 'cat', count: 1, averageConfidence: 0.98}]
     """
     parsed_results: Dict[str, Dict[str, List[float] | int]] = {}
     for pred in predictions:
@@ -43,9 +43,9 @@ def json_parser(predictions: List[Dict[str, float]]) -> List[dict]:
     for class_name, data in parsed_results.items():
         average_confidence: float = np.mean(data["average_confidence"])
         processed_predictions.append({
-            "class_name": class_name,
+            "className": class_name,
             "count": data["count"],
-            "average_confidence": average_confidence
+            "averageConfidence": average_confidence
         })
 
     return processed_predictions

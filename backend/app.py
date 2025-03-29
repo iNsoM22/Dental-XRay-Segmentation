@@ -1,7 +1,9 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, Response
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+import logging
+from logging.handlers import RotatingFileHandler
 import torch
 import asyncio
 from scripts.loader import initialize_model
@@ -12,8 +14,22 @@ from uuid import uuid4
 from collections import deque
 from database.db import mongo_connection
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 import concurrent.futures
+
+# Setup Logging
+log_handler = RotatingFileHandler(
+    "app.log", maxBytes=5 * 1024 * 1024, backupCount=2,
+)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.StreamHandler(),
+        log_handler
+    ]
+)
 
 # MongoDB Collection
 collection = None
@@ -43,7 +59,6 @@ async def process_queue():
             await queue_condition.wait()
 
         while queue:
-            print("✅ Background Processing Activated.")
             request_data = queue.popleft()
             fid = request_data["fid"]
             image = request_data["image"]
@@ -58,15 +73,15 @@ async def process_queue():
                     "fid": fid,
                     "image": image_binary,
                     "analysis": prediction["analysis"],
-                    "createdAt": datetime.now()
+                    "createdAt": datetime.now(timezone.utc)
                 }
-                print("✅ Processing Complete.")
                 async with db_condition:
                     db_queue.append(data)
                     db_condition.notify()
+                logging.info(f"Prediction completed for {fid}")
 
             except Exception as e:
-                print(f"❌ Error in process_queue: {e}")
+                logging.error(f"Error in process_queue: {e}", exc_info=True)
 
 
 async def batch_db_writer():
@@ -74,22 +89,21 @@ async def batch_db_writer():
     loop = asyncio.get_running_loop()
 
     while True:
-        # Pause for 5 seconds
-        await asyncio.sleep(5)
-        print("✅ Batch Writing Activated.")
+        # Pause for 10 seconds
+        await asyncio.sleep(10)
         if db_queue:
             async with db_condition:
-                print("✅ Performing Batch Write")
                 batch_data = list(db_queue)
                 db_queue.clear()
+                logging.info(
+                    f"Performing Batch Write: {len(batch_data)} entries")
 
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 try:
                     await loop.run_in_executor(executor, collection.insert_many, batch_data)
                 except Exception as e:
-                    print(f"❌ Database insert failed: {e}")
-
-        print("✅ Batch Operation Completed.")
+                    logging.error(
+                        f"Database insert failed: {e}", exc_info=True)
 
 
 @asynccontextmanager
@@ -98,21 +112,37 @@ async def lifespan(app: FastAPI):
     global processing_task, db_task, collection
     processing_task = asyncio.create_task(process_queue())
     db_task = asyncio.create_task(batch_db_writer())
-    collection = await mongo_connection()
+
+    for i in range(0, 2):
+        collection = await mongo_connection()
+        if collection is None:
+            logging.info(f"MongoDB Connection Failed on Attempt: {i+1}.")
+            await asyncio.sleep(2 ** i)
+        else:
+            logging.info(
+                f"MongoDB Connection Established on Attempt: {i+1}.")
+            break
+    if collection is None:
+        raise RuntimeError("MongoDB connection could not be established.")
+
+    logging.info("Server Started.")
 
     yield
 
-    processing_task.cancel()
-    db_task.cancel()
-
     try:
+        processing_task.cancel()
+        db_task.cancel()
         await processing_task
         await db_task
-    except asyncio.CancelledError:
-        print("✅ Server Cleanup Completed.")
 
-    collection.database.client.close()
-    print("✅ MongoDB Connection Closed.")
+    except asyncio.CancelledError:
+        logging.info("Server Cleanup Completed.")
+
+    try:
+        collection.database.client.close()
+        logging.info("MongoDB Connection Closed.")
+    except Exception as e:
+        logging.error(f"Error Closing MongoDB Connection: {e}", exc_info=True)
 
 
 app = FastAPI(lifespan=lifespan)
@@ -127,21 +157,25 @@ app.add_middleware(
 )
 
 
+############
+# API ROUTES
+############
 @app.get("/api/prediction-analysis/{fid}")
 async def get_analysis(fid: str):
     """Retrieve the prediction analysis using the UUID."""
     try:
-        print("✅ Request Hit for Getting Analysis.")
         prediction = await collection.find_one({"fid": fid})
 
-        if not prediction:
-            return {"status": 202, "message": "Processing", "data": None}
+        if prediction is None:
+            return JSONResponse(content=None, status_code=204)
 
         analysis_data = prediction["analysis"]
-        await collection.delete_one({"fid": fid})
+        # await collection.delete_one({"fid": fid})
+        # logging.info(f"Analysis retrieved and deleted for {fid}")
         return analysis_data
 
     except Exception as e:
+        logging.error(f"Error fetching analysis: {e}", exc_info=True)
         raise HTTPException(
             status_code=500, detail=f"Error fetching analysis: {e}")
 
@@ -149,14 +183,12 @@ async def get_analysis(fid: str):
 @app.get("/api/prediction-image/{fid}")
 async def get_prediction(fid: str):
     """Retrieve the prediction result using the UUID."""
-    print("✅ Request Hit for Getting Prediction.")
-    print("FID:", fid)
-
     try:
         prediction = await collection.find_one({"fid": fid})
+        print(prediction)
 
-        if not prediction:
-            return {"status": 202, "message": "Processing", "data": None}
+        if prediction is None:
+            return JSONResponse(content=None, status_code=204)
 
         image_binaries = prediction["image"]
         image = binary_image_to_file(image_binaries)
@@ -164,6 +196,7 @@ async def get_prediction(fid: str):
         return StreamingResponse(image, media_type="image/jpeg")
 
     except Exception as e:
+        logging.error(f"Error fetching prediction image: {e}", exc_info=True)
         raise HTTPException(
             status_code=500, detail=f"Error fetching prediction image: {e}")
 
@@ -173,8 +206,6 @@ async def upload(file: UploadFile = File(...)):
     """Upload an image and add it to the processing queue."""
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file uploaded.")
-
-    print("✅ Request Hit for Uploading File")
     try:
         # Read File IO
         content = await file.read()
@@ -186,13 +217,15 @@ async def upload(file: UploadFile = File(...)):
             queue.append({"fid": fid, "image": image})
             queue_condition.notify()
 
-        print("✅ Upload Queue:", len(queue))
-        return {"status": 200, "message": "Uploaded successfully", "data": {"fid": fid}}
+        logging.info(f"File uploaded and added to queue: {fid}")
+        return {"message": "Uploaded successfully", "data": {"fid": fid}}
 
     except UnidentifiedImageError as e:
+        logging.warning(f"⚠️ Invalid image file uploaded: {e}")
         raise HTTPException(status_code=400, detail=f"Invalid image file: {e}")
 
     except Exception as e:
+        logging.error(f"Error Uploading File: {e}", exc_info=True)
         raise HTTPException(
             status_code=500, detail=f"Error Uploading File: {e}")
 

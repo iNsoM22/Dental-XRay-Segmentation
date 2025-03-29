@@ -24,18 +24,16 @@ export const getPrediction = async (
   fileId: string
 ): Promise<{ imageFile: File } | null> => {
   try {
-    const imageResponse = await axios.get(
-      `${server}/prediction-image/${fileId}`,
-      {
-        responseType: "blob",
-      }
-    );
-
-    const imageFile = new File(
-      [imageResponse.data],
-      `prediction_${fileId}.jpg`,
-      { type: "image/jpeg" }
-    );
+    const response = await axios.get(`${server}/prediction-image/${fileId}`, {
+      responseType: "blob",
+      validateStatus: (status) => status === 200 || status === 204,
+    });
+    if (response.status === 204) {
+      return null;
+    }
+    const imageFile = new File([response.data], `prediction_${fileId}.jpg`, {
+      type: "image/jpeg",
+    });
     return { imageFile };
   } catch (error) {
     return null;
@@ -49,8 +47,12 @@ export const getAnalysis = async (fileId: string): Promise<any> => {
       `${server}/prediction-analysis/${fileId}`,
       {
         headers: { "Content-Type": "application/json" },
+        validateStatus: (status) => status === 200 || status === 204,
       }
     );
+    if (response.status === 204) {
+      return null;
+    }
     return response.data;
   } catch (error) {
     return null;

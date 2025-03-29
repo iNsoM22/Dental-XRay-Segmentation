@@ -4,7 +4,7 @@ import { useImagePrediction } from "@/context/ImagePredictionContext";
 import { useEffect, useRef, useState } from "react";
 import { getPrediction, uploadImage } from "@/services/DBService";
 import Container from "@/components/Container";
-import { toastError } from "@/lib/toaster";
+import { toastError, toastInfo } from "@/lib/toaster";
 import Loader from "@/components/loader";
 
 const PredictionPage = () => {
@@ -20,7 +20,7 @@ const PredictionPage = () => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [showAnalysis, setShowAnalysis] = useState<boolean>(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
+  let pollingCounter: number = 0;
 
   const toggleAnalysis = () => {
     setShowAnalysis((prev) => !prev);
@@ -30,7 +30,8 @@ const PredictionPage = () => {
     if (!fid) return;
 
     const response = await getPrediction(fid);
-    if (response?.imageFile) {
+    pollingCounter += 1;
+    if (response && response?.imageFile) {
       setPredictedImageFile(response.imageFile);
       const predictionURL = URL.createObjectURL(response.imageFile);
       setPredictedImageURL(predictionURL);
@@ -42,28 +43,31 @@ const PredictionPage = () => {
         intervalRef.current = null;
       }
     }
+
+    if (pollingCounter >= 5) {
+      toastInfo("Server is Currently Under Heavy Load");
+      pollingCounter = 0;
+    }
   };
 
   const handlePrediction = async (event: any) => {
     event.preventDefault();
+    if (!imageForPredictionFile) return;
 
     // Reset Previous Fid if Available
     setFid(null);
     setPredictedImageFile(null);
     setPredictedImageURL(null);
     setShowAnalysis(false);
+    pollingCounter = 0;
 
-    setIsButtonDisabled(true);
-    setTimeout(() => setIsButtonDisabled(false), 5000);
-
-    if (imageForPredictionFile) {
-      const response = await uploadImage(imageForPredictionFile);
-      if (response) {
-        setFid(response);
-        setIsProcessing(true);
-      } else {
-        toastError("Server Not Responding");
-      }
+    const response = await uploadImage(imageForPredictionFile);
+    if (response) {
+      setFid(response);
+      setIsProcessing(true);
+    } else {
+      toastError("Server Not Responding");
+      setIsProcessing(false);
     }
   };
 
@@ -92,7 +96,7 @@ const PredictionPage = () => {
               variant={"outline"}
               className="custom-button"
               onClick={handlePrediction}
-              disabled={isButtonDisabled}
+              disabled={isProcessing}
             >
               {predictedImageURL ? "Predict Again" : "Predict"}
             </Button>
@@ -109,7 +113,7 @@ const PredictionPage = () => {
 
         {/* Right Section - Text Analysis & Predict Again */}
         <section
-          className={`lg:flex lg:flex-col lg:gap-4 lg:w-[25%] lg:max-w-xl transition-all duration-300 ${
+          className={`flex justify-center lg:flex lg:flex-col lg:gap-4 lg:w-[25%] lg:max-w-xl transition-all duration-300 ${
             showAnalysis ? "block" : "hidden lg:block"
           }`}
         >
@@ -119,12 +123,10 @@ const PredictionPage = () => {
             variant="outline"
             className="custom-button-lg"
             onClick={handlePrediction}
-            disabled={isButtonDisabled}
+            disabled={isProcessing}
           >
-            {isButtonDisabled ? (
-              <div className=" p-4">
-                <Loader />
-              </div>
+            {isProcessing ? (
+              <Loader />
             ) : predictedImageURL ? (
               "Predict Again"
             ) : (

@@ -8,8 +8,7 @@ mongo_url = os.getenv("MONGO_DB_URL")
 
 
 async def mongo_connection():
-    client = AsyncIOMotorClient(mongo_url)
-    print("✅ MongoDB Connection Established.")
+    client = AsyncIOMotorClient(mongo_url, connect=True)
 
     db = client["DentAI-Pred-Images"]
     collection = db["predictions"]

@@ -1,11 +1,5 @@
 import { useImagePrediction } from "@/context/ImagePredictionContext";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card } from "./ui/card";
 import { useEffect, useState, useCallback } from "react";
 import { getAnalysis } from "@/services/DBService";
 import { icons } from "@/assets/assets";
@@ -13,7 +7,7 @@ import { askModel, Question } from "@/lib/gemini";
 import Markdown from "react-markdown";
 import Loader from "./loader";
 import { Button } from "./ui/button";
-import { toastInfo } from "@/lib/toaster";
+import { toastError, toastInfo } from "@/lib/toaster";
 
 const AnalysisContainer = () => {
   const { predictedImageURL, fid } = useImagePrediction();
@@ -22,30 +16,30 @@ const AnalysisContainer = () => {
   const [showRawFile, setShowRawFile] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Fetch analysis from the server when `fid` is available.
+  // Fetch analysis from the server when fid or Image is available.
   const fetchAnalysis = useCallback(async () => {
-    if (!fid) return;
+    if (!fid || !predictedImageURL) return;
     setLoading(true);
     try {
       const response = await getAnalysis(fid);
-      console.log(response);
       if (response) {
+        setLoading(false);
         setRawFile(response);
       }
     } catch (error) {
-      console.error("Error fetching analysis:", error);
-    } finally {
-      setLoading(false);
+      toastError("Internal Server Error");
     }
-  }, [fid, predictedImageURL]);
+    setLoading(false);
+  }, [predictedImageURL]);
 
   // Call LLM (askModel) when `rawFile` is updated.
   const generateAnalysisText = useCallback(async () => {
-    if (!rawFile) return;
+    if (!rawFile || analysisText.length > 1) return;
     try {
+      setAnalysisText("");
       await askModel(setAnalysisText, rawFile);
     } catch (error) {
-      console.error("Error generating analysis:", error);
+      toastError("Server Limit Reached");
     }
   }, [rawFile]);
 
@@ -121,7 +115,7 @@ const AnalysisContainer = () => {
       </div>
 
       {/* Content Body (Scrollable) */}
-      <div className="flex flex-col grow items-center px-6 py-4 bg-white/90 rounded-md overflow-y-auto w-full scrollbar-thin scrollbar-track-gray-200 scrollbar-thumb-blue-500">
+      <div className="flex flex-col grow items-center px-6 py-4 mb-6 bg-white/90 rounded-md overflow-y-auto w-full scrollbar-thin scrollbar-track-gray-200 scrollbar-thumb-blue-500">
         {!predictedImageURL && (
           <div className="text-lg flex items-center justify-center text-gray-500">
             No Predictions Yet

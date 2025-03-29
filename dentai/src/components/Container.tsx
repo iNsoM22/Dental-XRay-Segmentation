@@ -104,8 +104,10 @@ const Container = ({ intervalId, loading }: ContainerProps) => {
 
       {/* Image Container */}
       <div className="flex items-center justify-center lg:max-h-[70vh]">
-        {loading ? (
-          <Loader />
+        {loading && showPredictImage ? (
+          <div className="flex justify-center p-2 min-h-[50vh] max-h-full items-center w-full lg:h-full section-background rounded-md border shadow-md">
+            <Loader />
+          </div>
         ) : (
           <ImageContainer
             imageURL={
