@@ -16,6 +16,8 @@ from database.db import mongo_connection
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 import concurrent.futures
+from fastapi.staticfiles import StaticFiles
+
 
 # Setup Logging
 log_handler = RotatingFileHandler(
@@ -49,9 +51,8 @@ db_condition = asyncio.Condition()
 processing_task = None
 db_task = None
 
+
 # Background Image Processing
-
-
 async def process_queue():
     """Background task to process queued requests."""
     while True:
@@ -156,10 +157,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 ############
 # API ROUTES
 ############
+
+
 @app.get("/api/prediction-analysis/{fid}")
 async def get_analysis(fid: str):
     """Retrieve the prediction analysis using the UUID."""
@@ -185,7 +187,6 @@ async def get_prediction(fid: str):
     """Retrieve the prediction result using the UUID."""
     try:
         prediction = await collection.find_one({"fid": fid})
-        print(prediction)
 
         if prediction is None:
             return JSONResponse(content=None, status_code=204)
@@ -229,6 +230,8 @@ async def upload(file: UploadFile = File(...)):
         raise HTTPException(
             status_code=500, detail=f"Error Uploading File: {e}")
 
+
+app.mount("/", StaticFiles(directory="../dentai/dist", html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="127.0.0.1",
