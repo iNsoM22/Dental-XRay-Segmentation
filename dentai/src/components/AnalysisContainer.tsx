@@ -5,7 +5,7 @@ import { getAnalysis } from "@/services/DBService";
 import { icons } from "@/assets/assets";
 import { askModel, Question } from "@/lib/gemini";
 import Markdown from "react-markdown";
-import Loader from "./loader";
+import Loader from "./CircularLoader";
 import { Button } from "./ui/button";
 import { toastError, toastInfo } from "@/lib/toaster";
 

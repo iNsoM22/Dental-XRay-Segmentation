@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { getPrediction, uploadImage } from "@/services/DBService";
 import Container from "@/components/Container";
 import { toastError, toastInfo } from "@/lib/toaster";
-import Loader from "@/components/loader";
+import Loader from "@/components/CircularLoader";
 
 const PredictionPage = () => {
   const {

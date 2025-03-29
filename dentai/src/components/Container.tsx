@@ -4,7 +4,7 @@ import { useImagePrediction } from "@/context/ImagePredictionContext";
 import { icons } from "@/assets/assets";
 import ImageContainer from "./ImageContainer";
 import { useNavigate } from "react-router-dom";
-import Loader from "./loader";
+import Loader from "./CircularLoader";
 
 interface ContainerProps {
   intervalId: NodeJS.Timeout | null;
