@@ -5,7 +5,7 @@ from pathlib import Path
 import torch
 
 if str("yolov5") not in sys.path:
-    sys.path.append(str("yolov5"))
+    sys.path.append(str("../yolov5"))
 ROOT = Path(os.path.relpath("yolov5", Path.cwd()))
 
 
@@ -15,8 +15,8 @@ def initialize_model():
     Returns the initialized model.
     """
     from models.common import DetectMultiBackend
-    os.makedirs("model", exist_ok=True)
-    model_path = "model/model.pt"
+    os.makedirs("backend/model", exist_ok=True)
+    model_path = r"backend/model/model.pt"
 
     if not os.path.exists(model_path):
         raise FileNotFoundError(

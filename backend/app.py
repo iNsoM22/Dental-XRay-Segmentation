@@ -231,7 +231,11 @@ async def upload(file: UploadFile = File(...)):
             status_code=500, detail=f"Error Uploading File: {e}")
 
 
-app.mount("/", StaticFiles(directory="../dentai/dist", html=True), name="static")
+from pathlib import Path
+import os
+
+client_path = os.path.join(Path.cwd(), "dentai/dist/")
+app.mount("/", StaticFiles(directory=client_path, html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="127.0.0.1",

@@ -1,14 +1,22 @@
+import sys
+import os
+
+# Get the absolute path of the YOLOv5 repo
+YOLOV5_PATH = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), "../yolov5"))
+sys.path.append(YOLOV5_PATH)
+
+import torch
+import numpy as np
+from utils.torch_utils import smart_inference_mode
+from utils.segment.general import masks2segments, process_mask
+from utils.augmentations import letterbox
 from utils.general import (
     check_img_size,
     non_max_suppression,
     scale_boxes,
     scale_segments,
 )
-from utils.augmentations import letterbox
-from utils.segment.general import masks2segments, process_mask
-from utils.torch_utils import smart_inference_mode
-import torch
-import numpy as np
 
 
 def process_image(im0, img_size=640, stride=32, auto=True, transforms=None):
