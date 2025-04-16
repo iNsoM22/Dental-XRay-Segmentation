@@ -16,7 +16,7 @@ def predictor(model, device, image: np.ndarray) -> dict:
     Returns:
         dict: A dictionary containing:
             - "image": Annotated image as a Numpy array with predictions drawn on it.
-            - "predictions": Parsed predictions as a dictionary with class names as keys 
+            - "analysis": Parsed predictions as a dictionary with class names as keys 
               and a dictionary of 'count' and 'average confidence' as values.
 
     Examples:

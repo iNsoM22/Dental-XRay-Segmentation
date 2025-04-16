@@ -1,6 +1,7 @@
 from PIL import Image
 import numpy as np
 from io import BytesIO
+from typing import Union
 from bson import Binary
 
 
@@ -19,21 +20,23 @@ def user_file_to_array_image(image_bytes: bytes) -> np.ndarray:
     return np.array(image)
 
 
-# Used to Convert Np Array to Binary Image for Database Storage
-def array_to_binary_image(image: np.ndarray, format: str = "JPEG") -> Binary:
+def array_to_binary_image(image: np.ndarray, format: str = "JPEG", pil_image: bool = False) -> Union[Binary, BytesIO]:
     """
-    Converts a NumPy array to a BSON Binary object for MongoDB storage.
+    Converts a NumPy array to a BSON Binary object for MongoDB storage
+    or returns a BytesIO stream of the image.
 
     Args:
         image (np.ndarray): Input image as a NumPy array.
         format (str): Image format (default is "JPEG"). Supports "PNG", "JPEG", etc.
+        pil_image (bool): If True, returns a BytesIO object instead of BSON Binary.
 
     Returns:
-        Binary: BSON-compatible binary object for MongoDB.
+        Union[Binary, BytesIO]: Binary for MongoDB or BytesIO stream.
     """
     buffer = BytesIO()
     Image.fromarray(image).save(buffer, format=format)
-    return Binary(buffer.getvalue())
+    buffer.seek(0)
+    return buffer if pil_image else Binary(buffer.getvalue())
 
 
 # Used to Convert Binary to ioFile Streaming Response for API get

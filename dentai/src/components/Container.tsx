@@ -7,18 +7,16 @@ import { useNavigate } from "react-router-dom";
 import Loader from "./CircularLoader";
 
 interface ContainerProps {
-  intervalId: NodeJS.Timeout | null;
   loading: boolean;
 }
 
-const Container = ({ intervalId, loading }: ContainerProps) => {
+const Container = ({ loading }: ContainerProps) => {
   const [showPredictImage, setShowPredictImage] = useState(false);
   const {
     imageForPredictionFile,
     predictedImageFile,
     imageForPredictionURL,
     resetImages,
-    fid,
     predictedImageURL,
   } = useImagePrediction();
   const navigate = useNavigate();
@@ -33,7 +31,7 @@ const Container = ({ intervalId, loading }: ContainerProps) => {
       const url = URL.createObjectURL(fileToDownload);
       const a = document.createElement("a");
       a.href = url;
-      a.download = fileToDownload.name || fid + "./jpg";
+      a.download = fileToDownload.name || "prediction./jpg";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -52,7 +50,6 @@ const Container = ({ intervalId, loading }: ContainerProps) => {
     event.preventDefault();
     resetImages();
     setShowPredictImage(false);
-    intervalId && clearInterval(intervalId);
     navigate("/");
   };
 

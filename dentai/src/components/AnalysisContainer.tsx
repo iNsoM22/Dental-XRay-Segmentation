@@ -1,36 +1,22 @@
 import { useImagePrediction } from "@/context/ImagePredictionContext";
 import { Card } from "./ui/card";
 import { useEffect, useState, useCallback } from "react";
-import { getAnalysis } from "@/services/DBService";
 import { icons } from "@/assets/assets";
-import { askModel, Question } from "@/lib/gemini";
+import { askModel } from "@/lib/gemini";
 import Markdown from "react-markdown";
 import Loader from "./CircularLoader";
 import { Button } from "./ui/button";
 import { toastError, toastInfo } from "@/lib/toaster";
 
-const AnalysisContainer = () => {
-  const { predictedImageURL, fid } = useImagePrediction();
-  const [rawFile, setRawFile] = useState<Question[] | null>(null);
+interface AnalysisContainerProps {
+  rawFile: any;
+  loading: boolean;
+}
+
+const AnalysisContainer = ({ rawFile, loading }: AnalysisContainerProps) => {
+  const { predictedImageURL } = useImagePrediction();
   const [analysisText, setAnalysisText] = useState("");
   const [showRawFile, setShowRawFile] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  // Fetch analysis from the server when fid or Image is available.
-  const fetchAnalysis = useCallback(async () => {
-    if (!fid || !predictedImageURL) return;
-    setLoading(true);
-    try {
-      const response = await getAnalysis(fid);
-      if (response) {
-        setLoading(false);
-        setRawFile(response);
-      }
-    } catch (error) {
-      toastError("Internal Server Error");
-    }
-    setLoading(false);
-  }, [predictedImageURL]);
 
   // Call LLM (askModel) when `rawFile` is updated.
   const generateAnalysisText = useCallback(async () => {
@@ -42,11 +28,6 @@ const AnalysisContainer = () => {
       toastError("Server Limit Reached");
     }
   }, [rawFile]);
-
-  // Fetch Analysis when fid is available
-  useEffect(() => {
-    fetchAnalysis();
-  }, [fetchAnalysis]);
 
   // Generate text analysis when rawFile is updated
   useEffect(() => {
@@ -78,7 +59,7 @@ const AnalysisContainer = () => {
     const url = URL.createObjectURL(fileBlob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `analysis_${fileName}_${fid}.${fileExtension}`;
+    link.download = `analysis_${fileName}.${fileExtension}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
