@@ -41,7 +41,5 @@ popd
 echo "Installing other backend dependencies..."
 pip install -r requirements.txt
 
-# Run backend
 
-cd ..
-python backend/main.py
+echo "Application Dependencies has been Installed Successfully"
