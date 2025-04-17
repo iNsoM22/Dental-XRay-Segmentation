@@ -2,8 +2,6 @@
 
 set -e
 
-# Check Dependencies
-command -v npm >/dev/null 2>&1 || { echo >&2 "npm is not installed. Aborting."; exit 1; }
 command -v pip >/dev/null 2>&1 || { echo >&2 "pip is not installed. Aborting."; exit 1; }
 
 # Check for model directory and file
@@ -19,6 +17,8 @@ fi
 
 # Build Frontend
 pushd dentai
+command -v npm >/dev/null 2>&1 || { echo >&2 "npm is not installed. Aborting."; exit 1; }
+
 npm run build
 popd
 
