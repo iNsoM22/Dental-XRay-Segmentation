@@ -15,15 +15,15 @@ if [ ! -f "backend/model/model.pt" ]; then
     exit 1
 fi
 
-# Build Frontend
-pushd dentai
-command -v npm >/dev/null 2>&1 || { echo >&2 "npm is not installed. Aborting."; exit 1; }
-npm i
-npm run build
-popd
+# # Build Frontend
+# pushd dentai
+# command -v npm >/dev/null 2>&1 || { echo >&2 "npm is not installed. Aborting."; exit 1; }
+# npm i
+# npm run build
+# popd
 
 # Backend Setup
-pushd backend
+# pushd backend
 
 # # Clone YOLOv5 if not present
 # if [ ! -d "yolov5" ]; then
@@ -38,8 +38,8 @@ pushd backend
 # popd
 
 # Install backend requirements
-echo "Installing Backend Dependencies..."
-pip install -r requirements.txt
+# echo "Installing Backend Dependencies..."
+# pip install -r requirements.txt
 
 
-echo "Application Dependencies has been Installed Successfully"
+# echo "Application Dependencies has been Installed Successfully"
