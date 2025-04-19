@@ -18,7 +18,7 @@ fi
 # Build Frontend
 pushd dentai
 command -v npm >/dev/null 2>&1 || { echo >&2 "npm is not installed. Aborting."; exit 1; }
-
+npm i
 npm run build
 popd
 
