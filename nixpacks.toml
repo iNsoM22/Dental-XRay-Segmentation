@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["python3", "python3Packages.pip", "nodejs", "nodePackages.npm"]
+
+[phases.build]
+cmds = [
+  "chmod +x setup.sh",
+  "./setup.sh"
+]
+
+[start]
+cmd = "python backend/main.py"
