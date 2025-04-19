@@ -8,7 +8,7 @@ cmds = [
 [phases.build]
 cmds = [
   "npm install --prefix dentai && npm run build --prefix dentai",
-  "pip install -r requirements.txt"
+  "pip install --no-cache-dir --force-reinstall --requirement backend/requirements.txt"
 ]
 
 [start]
