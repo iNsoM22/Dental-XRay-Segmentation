@@ -25,20 +25,20 @@ popd
 # Backend Setup
 pushd backend
 
-# Clone YOLOv5 if not present
-if [ ! -d "yolov5" ]; then
-    echo "yolov5 directory not found. Cloning the YOLOv5 repository..."
-    git clone https://github.com/ultralytics/yolov5.git
-fi
+# # Clone YOLOv5 if not present
+# if [ ! -d "yolov5" ]; then
+#     echo "yolov5 directory not found. Cloning the YOLOv5 repository..."
+#     git clone https://github.com/ultralytics/yolov5.git
+# fi
 
-# Install YOLOv5 requirements
-pushd yolov5
-echo "Installing YOLOv5 dependencies..."
-pip install -r requirements.txt
-popd
+# # Install YOLOv5 requirements
+# pushd yolov5
+# echo "Installing YOLOv5 dependencies..."
+# pip install -r requirements.txt
+# popd
 
 # Install backend requirements
-echo "Installing other backend dependencies..."
+echo "Installing Backend Dependencies..."
 pip install -r requirements.txt
 
 
