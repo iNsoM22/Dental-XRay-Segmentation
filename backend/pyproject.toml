@@ -1,0 +1,24 @@
+[project]
+name = "dental-xray-backend"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.165.0",
+    "matplotlib>=3.11.2",
+    "motor>=3.7.1",
+    "numpy>=2.4.6",
+    "opencv-python>=5.1.0.95",
+    "pandas>=3.1.1",
+    "pillow>=13.0.0",
+    "psutil>=7.2.2",
+    "pymongo>=4.20.1",
+    "python-dotenv>=1.2.4",
+    "pyyaml>=6.0.4",
+    "requests>=2.34.2",
+    "scipy>=1.17.1",
+    "seaborn>=0.13.2",
+    "torch>=2.15.0",
+    "torchvision>=0.29.2",
+    "tqdm>=4.70.1",
+    "uvicorn>=0.54.0",
+]
