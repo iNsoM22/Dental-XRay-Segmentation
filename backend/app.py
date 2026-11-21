@@ -16,7 +16,6 @@ from database.db import mongo_connection
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 import concurrent.futures
-from fastapi.staticfiles import StaticFiles
 
 
 # Setup Logging
@@ -230,12 +229,6 @@ async def upload(file: UploadFile = File(...)):
         raise HTTPException(
             status_code=500, detail=f"Error Uploading File: {e}")
 
-
-from pathlib import Path
-import os
-
-client_path = os.path.join(Path.cwd(), "dentai/dist/")
-app.mount("/", StaticFiles(directory=client_path, html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="127.0.0.1",
