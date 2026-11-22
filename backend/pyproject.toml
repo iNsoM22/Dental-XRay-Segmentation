@@ -13,6 +13,7 @@ dependencies = [
     "psutil>=7.2.2",
     "pymongo>=4.20.1",
     "python-dotenv>=1.2.4",
+    "python-multipart>=0.0.34",
     "pyyaml>=6.0.4",
     "requests>=2.34.2",
     "scipy>=1.17.1",
@@ -20,5 +21,6 @@ dependencies = [
     "torch>=2.15.0",
     "torchvision>=0.29.2",
     "tqdm>=4.70.1",
+    "ultralytics>=8.4.216",
     "uvicorn>=0.54.0",
 ]

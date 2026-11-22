@@ -9,7 +9,11 @@ sys.path.append(YOLOV5_PATH)
 import torch
 import numpy as np
 from utils.torch_utils import smart_inference_mode
-from utils.segment.general import masks2segments, process_mask
+from utils.segment.general import process_mask
+try:
+    from ultralytics.utils.ops import masks2segments
+except ImportError:
+    from utils.segment.general import masks2segments
 from utils.augmentations import letterbox
 from utils.general import (
     check_img_size,
