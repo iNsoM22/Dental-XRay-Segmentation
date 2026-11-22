@@ -4,3 +4,7 @@ yolov5
 __pycache__
 /*/__pycache__
 *.log
+data/
+*.db
+*.db-wal
+*.db-shm

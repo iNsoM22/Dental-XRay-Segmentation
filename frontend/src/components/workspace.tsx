@@ -17,20 +17,27 @@ import type {
 
 export function Workspace({
   image,
+  segmentedUrl,
   phase,
+  queueStatus,
+  error,
   mode,
   findings,
   onMode,
   onPredict,
 }: {
   image: UploadedImage;
+  segmentedUrl: string | null;
   phase: Phase;
+  queueStatus: string;
+  error: string;
   mode: PreviewMode;
   findings: FindingResult[];
   onMode: (mode: PreviewMode) => void;
   onPredict: () => void;
 }) {
   const showSegmented = phase === "done" && mode === "segmentation";
+  const displaySrc = showSegmented && segmentedUrl ? segmentedUrl : image.url;
 
   return (
     <main className="workspace shell">
@@ -89,8 +96,12 @@ export function Workspace({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className="stage-image"
-                src={image.url}
-                alt="Uploaded dental radiograph"
+                src={displaySrc}
+                alt={
+                  showSegmented
+                    ? "Predicted dental radiograph segmentation"
+                    : "Uploaded dental radiograph"
+                }
               />
             </div>
 
@@ -99,7 +110,7 @@ export function Workspace({
                 <div className="scan-line" aria-hidden="true" />
                 <span className="scan-pill">
                   <span className="spinner spinner-dark" aria-hidden="true" />
-                  Analyzing radiograph…
+                  {queueStatus}
                 </span>
               </div>
             )}
@@ -109,6 +120,12 @@ export function Workspace({
               <span>{showSegmented ? "Segmentation view" : "Original upload"}</span>
             </div>
           </div>
+
+          {error && phase !== "running" && (
+            <p className="upload-error" role="alert">
+              {error}
+            </p>
+          )}
 
           <div className="image-footer">
             <div className="image-hint">

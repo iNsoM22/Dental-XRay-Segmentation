@@ -41,10 +41,10 @@ def json_parser(predictions: List[Dict[str, float]]) -> List[dict]:
 
     processed_predictions: List[dict] = []
     for class_name, data in parsed_results.items():
-        average_confidence: float = np.mean(data["average_confidence"])
+        average_confidence: float = float(np.mean(data["average_confidence"]))
         processed_predictions.append({
             "className": class_name,
-            "count": data["count"],
+            "count": int(data["count"]),
             "averageConfidence": average_confidence
         })
 
