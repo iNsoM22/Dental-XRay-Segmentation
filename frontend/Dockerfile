@@ -3,7 +3,9 @@ FROM node:20-slim AS deps
 
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm config set fetch-timeout 300000 \
+    && npm config set fetch-retries 5 \
+    && npm ci
 
 # ---- Stage 2: Build Next.js app ----
 FROM node:20-slim AS builder
